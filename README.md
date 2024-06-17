@@ -263,9 +263,27 @@ bool check_expression(char *str)//входные данные строка
 }
 ```
 ## ТЕСТИРОВКА ПРОГРАММЫ 
-
-
-
+конечно же нам надот придумать тестировки для данной программы. Я придумал следующие тестировки 
+```C
+    char str[size_str] = "";//uncorrect
+    char str[size_str] = "(()";//uncorrect
+    char str[size_str] = " + h";// correct
+    char str[size_str] = "  (+2 - ((-1) / h ) + (a /  (-1)))";//correct
+    char str[size_str] = "((c - d) * h + 1) * (a + b)";//correct
+    char str[size_str] = "-d";//correct
+    char str[size_str] = "+h";//correct
+    char str[size_str] = "(-2)";//ccorrect
+    char str[size_str] = "(+2)";//correct
+    char str[size_str] = "((c + d) * h + 1) * (a + b))))))))))))";//uncorrect
+    char str[size_str] = "(a+(b**h) - 8)";//uncorrect
+    char str[size_str] = "(-1) * (-2)";//correct
+    char str[size_str] = "(-1) * ()";//uuncorrect
+    char str[size_str] = "(-1) (-2)";//uncorrect
+    char str[size_str] = "(-1) * ()";//uncorrect
+    char str[size_str] = "(-1) * (+)";//uncorrect
+```
+Смотря на функцию проверки выражения, мы понимаем, что надо  проверить когда спрока пустая, когда строка состоит только из скобок, только из цифр, только буквы, где слишком много или слишком мало скобок, так же где символы стоят не на своих позициях,
+где повторяющиеся символы, так же унарный плюс или унарный минус (Унарным называется оператор, который применяется к одному операнду), так же где совсем не мат операций.
 
 
 
