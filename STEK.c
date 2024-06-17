@@ -129,8 +129,11 @@ bool check_expression(char *str)
     {
         if(str[i] == '(')
         {
-            flag = true;
-            push(&staples, '(');
+            if(('a' <= str[i + 1] && str[i + 1] <= 'z') || ('0' <= str[i + 1] && str[i + 1] <= '9') || str[i + 1] == '-' || str[i + 1] == '+' || str[i + 1] == '(')
+            {
+                flag = true;
+                push(&staples, '(');
+            }
         }
         else if(str[i] == ')')
         {
@@ -204,14 +207,21 @@ int main()
     stek st;
     st.size = 0;
     st.top = NULL;
-    //char str[size_str] = "";//uncorrect
+    char str[size_str] = "";//uncorrect
     //char str[size_str] = " + h";// correct
-    char str[size_str] = "  (+2 - ((-1) / h ) + (a /  (-1)))";
+    //char str[size_str] = "  (+2 - ((-1) / h ) + (a /  (-1)))";
     //char str[size_str] = "((c - d) * h + 1) * (a + b)";//correct
     //char str[size_str] = "-d";//correct
-    //char str[size_str] = "+h";//correct;
+    //char str[size_str] = "+h";//correct
+    //char str[size_str] = "(-2)";//ccorrect
+    //char str[size_str] = "(+2)";//correct
     //char str[size_str] = "((c + d) * h + 1) * (a + b))))))))))))";//uncorrect
     //char str[size_str] = "(a+(b**h) - 8)";//uncorrect
+    //char str[size_str] = "(-1) * (-2)";//correct
+    //char str[size_str] = "(-1) * ()";//uuncorrect
+    //char str[size_str] = "(-1) (-2)";//uncorrect
+    //char str[size_str] = "(-1) * ()";//uncorrect
+    //char str[size_str] = "(-1) * (+)";//uncorrect
     if(check_expression(str))
         printf("correct\n");
     else
@@ -220,4 +230,3 @@ int main()
 
     return 0;
 }
-
