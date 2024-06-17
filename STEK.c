@@ -129,10 +129,17 @@ bool check_expression(char *str)
     {
         if(str[i] == '(')
         {
+            flag = true;
+            // push(&staples, '(');
             if(('a' <= str[i + 1] && str[i + 1] <= 'z') || ('0' <= str[i + 1] && str[i + 1] <= '9') || str[i + 1] == '-' || str[i + 1] == '+' || str[i + 1] == '(')
             {
                 flag = true;
                 push(&staples, '(');
+            }
+            else
+            {
+                flag = false;
+                return false;
             }
         }
         else if(str[i] == ')')
@@ -207,9 +214,10 @@ int main()
     stek st;
     st.size = 0;
     st.top = NULL;
-    char str[size_str] = "";//uncorrect
+    //char str[size_str] = "";//uncorrect
+    char str[size_str] = "(()";//uncorrect
     //char str[size_str] = " + h";// correct
-    //char str[size_str] = "  (+2 - ((-1) / h ) + (a /  (-1)))";
+    //char str[size_str] = "  (+2 - ((-1) / h ) + (a /  (-1)))";//correct
     //char str[size_str] = "((c - d) * h + 1) * (a + b)";//correct
     //char str[size_str] = "-d";//correct
     //char str[size_str] = "+h";//correct
