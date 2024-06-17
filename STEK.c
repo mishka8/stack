@@ -211,9 +211,6 @@ bool check_expression(char *str)
 
 int main()
 {
-    stek st;
-    st.size = 0;
-    st.top = NULL;
     //char str[size_str] = "";//uncorrect
     char str[size_str] = "(()";//uncorrect
     //char str[size_str] = " + h";// correct
