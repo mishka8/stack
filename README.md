@@ -158,109 +158,102 @@ void delStek(stek *st)//входные данные стек
 ## ГЛАВНАЯ ФУНКЦИЯ ПРОВЕРКИ ВЫРАЖЕНИЯ
 
 >[!IMPORTANT]
-> 1. Проверка скобок так, как нам не важене приоритет операций, то нам достаточно проверять скобки и опускать их из выражения
-> 2. далее работа с самим выражением 
-> 3. Полностью помещаем выражение в стек
-> 4. проверка тройками и замена тройки на один символ
+> 1. Проверка скобок так, как нам не важене приоритет операций, то нам достаточно проверять количество скобок 
+> 2. Полностью помещаем выражение в стек
+> 3. проверка тройками и замена тройки на один символ
 ```C
 push(&st, 'v');
 ```
 
+функйция проверки "тройки"
+```C
+bool chek_triple(stek *st)
+{
+    if(st == NULL)
+        return false;
+    int pos = 0;
+    while(isEmpty(*st) == false)
+    {
+        char tmp = pop(st);
+        if(gramar(tmp) || number(tmp))
+            if(pos % 2 == 1)
+                return false;
+        else
+            if(tmp == '(' && pos != 0)
+                return false;
+            else
+                if(tmp == ')' && pos != 2)
+                    return false;
+                    
+        if(operation(tmp))
+            if(pos % 2 == 0)
+                return false;
+        pos++;
+    }
+    return true;
+}
+```
+
+
+
 Сама функция: 
 ```C
-bool check_expression(char *str)//входные данные строка 
+bool check_expression(char *str)
 {
-    if(str == NULL)// проверка данных  
-        return false;// возвращаем false
-    if(strlen(str) == 0)// если строка пустая
-        return false;//
+    if(str == NULL)
+        return false;
+    if(strlen(str) == 0)
+        return false;
 
-    stek st = {NULL, 0};// стек для выражения 
-    stek staples = {NULL, 0};// стек для скобок 
-    bool flag = true;// флаг равен истине
-    for(int i = 0; str[i] != '\0'; i++)// цикл по всей строке 
+    stek st = {NULL, 0};
+    int count = 0;
+    for(int i = 0; str[i]; i++)
     {
-        if(str[i] == '(')// если мы находим открывающуюся скобку
+        if(str[i] == '(')
         {
-            flag = true;// флаг равен истине
-            if(('a' <= str[i + 1] && str[i + 1] <= 'z') || ('0' <= str[i + 1] && str[i + 1] <= '9') || str[i + 1] == '-' || str[i + 1] == '+' || str[i + 1] == '(')
-            // проверка  что после первой скобки есть ещё символы чтобы скобки не были пустые
-            {
-                flag = true;// флаг равен истине 
-                push(&staples, '(');// заносим скобку в стек
-            }
-            else
-            {
-                flag = false;// иначе флаг равен лжи
-                return false;// возвращаем false и выходим из функции 
-            }
+            count++;
+            if(str[i + 1] && str[i + 1] == ')')
+                return false;
         }
-        else if(str[i] == ')')// если мы находим закрывающую скобку
+        else if(str[i] == ')')
         {
-            if(isEmpty(staples))// проверка если стек со скобками пустой
-                return false;// возвращаем false
-
-                pop(&staples);// вытаскиваем скобку которую помещали в стек 
+            count--;
+            if(str[i + 1] && str[i + 1] == '(')
+                return false;
         }
-        else if(str[i] != ' ')// для унарного минуса и плюса
+        else if(str[i] != ' ')
         {
-            if(flag &&  (str[i] == '-' || str[i] == '+'))// проверка что строка
-            {
-                //делаем из выражения (-2) = 0 - 2 или (+2) = 0 + 2
-                push(&st, '0');//помещяем ноль в стек 
-                push(&st, str[i]);// помещяем  символ в стек 
-            }
-            else
-                push(&st, str[i]);// иначе просто помещаем символ в стек 
-
-            flag = false;// делаем флаг равным лжи
+            if(str[i - 1] && str[i - 1] == '(' && (str[i] == '+' || str[i] == '-'))
+                push(&st, '0');
+            push(&st, str[i]);
         }
-
+        
+        
     }
-    print_stack(st);// выводим наше выражение в стеке (это необязательно)
-
-    if(isEmpty(staples) == false)//проверка если стек со скобками не пустой 
-        return false;// возвращаем false выходим из функции 
-
-    bool flag1 = true;// делаем ещё один флаг
-
-    while(flag1)// цикл пока флаг true
+    if(count != 0)
+        return false;
+    
+    bool flag = true;
+    while(flag)
     {
-        stek triple = {NULL, 0};// стек для "троек"
-
-        for(int i = 0; i < 3; i++)//цикл по тройкам 
+        stek triple = {NULL, 0};
+        for(int i = 0; i < 3; i++)
         {
-            char tmp = pop(&st);// вытаскиваем из стека с выражением 
-            push(&triple, tmp);// помещаем в стек с тройками 
+            char tmp = pop(&st);
+            push(&triple, tmp);
         }
-        int pos = 0;// для проверки позиции символа 
-        bool flag_grammar = true;// флаг для грамматики  
-        while(isEmpty(triple) == false)// пока наша тройка лежит в стеке
-        {
-            char symbol = pop(&triple);// вытаскиваем символ из стека с тройками 
-            if(('a' <= symbol && symbol <= 'z') || ('0' <= symbol && symbol <= '9'))// проверка что символ правильный 
-                if(pos % 2 == 1)// проверка позиции символа если позиция не та то
-                    flag_grammar = false;// флаг граматики false
-            if(symbol == '+' || symbol == '-' || symbol == '*' || symbol == '/')// проверка мат операции 
-                if(pos % 2 == 0)// проверка позиции если позиция символа не та то 
-                    flag_grammar = false;// флаг граматики false
-
-            pos++;// прибавляем позицию
-
-        }
-        if(flag_grammar)//если флаг граматики true 
-        {
-            push(&st, 'v');// в стек где лежит выражение заносим новый символ 
-        }
+        if(chek_triple(&triple))
+            push(&st, 'v');
         else
-            return false;// иначе выходим с функции 
-
-        if(st.size == 1)// если размер стека с выражением равен единице   
-            flag1 = false;//выходим из цикла с помощью флага
-
+            return false;
+            
+        if(st.size == 2)
+            return false;
+        if(st.size == 1)
+            flag = false;
     }
-    return true;//возвращаем true функция отработала 
-
+    return true;
+    
 }
 ```
 ## ТЕСТИРОВКА ПРОГРАММЫ 
