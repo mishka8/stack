@@ -3,6 +3,10 @@
 #include <stdbool.h>
 #include <string.h>
 #define size_str 200
+#define gramar(symbol) (('a' <= symbol) && (symbol <= 'z'))
+#define number(symbol) (('0' <= symbol) && (symbol <= '9'))
+#define operation(symbol) ((symbol == '+') || (symbol == '-') || (symbol == '*') || (symbol == '/'))
+
 
 struct nodelist
 {
@@ -115,6 +119,32 @@ void delStek(stek *st)
     }
 }
 
+bool chek_triple(stek *st)
+{
+    if(st == NULL)
+        return false;
+    int pos = 0;
+    while(isEmpty(*st) == false)
+    {
+        char tmp = pop(st);
+        if(gramar(tmp) || number(tmp))
+            if(pos % 2 == 1)
+                return false;
+        else
+            if(tmp == '(' && pos != 0)
+                return false;
+            else
+                if(tmp == ')' && pos != 2)
+                    return false;
+                    
+        if(operation(tmp))
+            if(pos % 2 == 0)
+                return false;
+        pos++;
+    }
+    return true;
+}
+
 bool check_expression(char *str)
 {
     if(str == NULL)
@@ -123,102 +153,68 @@ bool check_expression(char *str)
         return false;
 
     stek st = {NULL, 0};
-    stek staples = {NULL, 0};
-    bool flag = true;
-    for(int i = 0; str[i] != '\0'; i++)
+    int count = 0;
+    for(int i = 0; str[i]; i++)
     {
         if(str[i] == '(')
         {
-            flag = true;
-            // push(&staples, '(');
-            if(('a' <= str[i + 1] && str[i + 1] <= 'z') || ('0' <= str[i + 1] && str[i + 1] <= '9') || str[i + 1] == '-' || str[i + 1] == '+' || str[i + 1] == '(')
-            {
-                flag = true;
-                push(&staples, '(');
-            }
-            else
-            {
-                flag = false;
+            count++;
+            if(str[i + 1] && str[i + 1] == ')')
                 return false;
-            }
         }
         else if(str[i] == ')')
         {
-            if(isEmpty(staples))
+            count--;
+            if(str[i + 1] && str[i + 1] == '(')
                 return false;
-
-                pop(&staples);
         }
         else if(str[i] != ' ')
         {
-            if(flag &&  (str[i] == '-' || str[i] == '+'))
-            {
+            if(str[i - 1] && str[i - 1] == '(' && (str[i] == '+' || str[i] == '-'))
                 push(&st, '0');
-                push(&st, str[i]);
-            }
-            else
-                push(&st, str[i]);
-
-            flag = false;
+            push(&st, str[i]);
         }
-
+        
+        
     }
-    print_stack(st);
-
-    if(isEmpty(staples) == false)
+    if(count != 0)
         return false;
-
-    bool flag1 = true;
-
-    while(flag1)
+    
+    bool flag = true;
+    while(flag)
     {
         stek triple = {NULL, 0};
-
         for(int i = 0; i < 3; i++)
         {
             char tmp = pop(&st);
             push(&triple, tmp);
         }
-        int pos = 0;
-        bool flag_grammar = true;
-        while(isEmpty(triple) == false)
-        {
-            char symbol = pop(&triple);
-            if(('a' <= symbol && symbol <= 'z') || ('0' <= symbol && symbol <= '9'))
-                if(pos % 2 == 1)
-                    flag_grammar = false;
-            if(symbol == '+' || symbol == '-' || symbol == '*' || symbol == '/')
-                if(pos % 2 == 0)
-                    flag_grammar = false;
-
-            pos++;
-
-        }
-        if(flag_grammar)
-        {
+        if(chek_triple(&triple))
             push(&st, 'v');
-        }
         else
             return false;
-
+            
+        if(st.size == 2)
+            return false;
         if(st.size == 1)
-            flag1 = false;
-
+            flag = false;
     }
     return true;
-
+    
 }
 
 int main()
 {
     //char str[size_str] = "";//uncorrect
     char str[size_str] = "(()";//uncorrect
-    //char str[size_str] = " + h";// correct
-    //char str[size_str] = "  (+2 - ((-1) / h ) + (a /  (-1)))";//correct
-    //char str[size_str] = "((c - d) * h + 1) * (a + b)";//correct
-    //char str[size_str] = "-d";//correct
-    //char str[size_str] = "+h";//correct
-    //char str[size_str] = "(-2)";//ccorrect
+    //char str[size_str] = " (+ h)";// correct
+    //char str[size_str] = " (2)";
+    //char str[size_str] = "(2 + (8 * a))";
+    //char str[size_str] = "  (2 - ((-1) / h ) + (a /  (-1)))";//correct
+    //char str[size_str] = "((c-d)*h+1)*(a+b)";//correct
+    //char str[size_str] = "(-d)";//correct
+    //char str[size_str] = "f * a * 8 + 1 + a";
+    //char str[size_str] = "(-2)";//correct
     //char str[size_str] = "(+2)";//correct
     //char str[size_str] = "((c + d) * h + 1) * (a + b))))))))))))";//uncorrect
     //char str[size_str] = "(a+(b**h) - 8)";//uncorrect
