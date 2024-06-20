@@ -130,13 +130,6 @@ bool chek_triple(stek *st)
         if(gramar(tmp) || number(tmp))
             if(pos % 2 == 1)
                 return false;
-        else
-            if(tmp == '(' && pos != 0)
-                return false;
-            else
-                if(tmp == ')' && pos != 2)
-                    return false;
-                    
         if(operation(tmp))
             if(pos % 2 == 0)
                 return false;
