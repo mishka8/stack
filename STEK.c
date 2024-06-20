@@ -190,10 +190,11 @@ bool check_expression(char *str)
         if(st.size == 2)
             return false;
         if(st.size == 1)
+        {
             flag = false;
+            return true;
+        }
     }
-    return true;
-    
 }
 
 int main()
