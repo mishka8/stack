@@ -167,26 +167,19 @@ push(&st, 'v');
 
 функйция проверки "тройки"
 ```C
-bool chek_triple(stek *st)
+bool chek_triple(stek *st)//входные данные стек в котором лежит тройка
 {
-    if(st == NULL)
+    if(st == NULL)//проверка данных
         return false;
-    int pos = 0;
-    while(isEmpty(*st) == false)
+    int pos = 0;//
+    while(isEmpty(*st) == false)//цикл пока наша "трокйка не пустая"
     {
         char tmp = pop(st);
-        if(gramar(tmp) || number(tmp))
-            if(pos % 2 == 1)
-                return false;
-        else
-            if(tmp == '(' && pos != 0)
-                return false;
-            else
-                if(tmp == ')' && pos != 2)
-                    return false;
-                    
-        if(operation(tmp))
-            if(pos % 2 == 0)
+        if(gramar(tmp) || number(tmp))//проврка символа 
+            if(pos % 2 == 1)// проверка позиции 
+                return false;                    
+        if(operation(tmp))//проверка знака 
+            if(pos % 2 == 0)// проверка позиции 
                 return false;
         pos++;
     }
@@ -198,62 +191,61 @@ bool chek_triple(stek *st)
 
 Сама функция: 
 ```C
-bool check_expression(char *str)
+bool check_expression(char *str)//входные данные строка 
 {
-    if(str == NULL)
+    if(str == NULL)//проверка данных
         return false;
-    if(strlen(str) == 0)
+    if(strlen(str) == 0)//проверка данных
         return false;
 
-    stek st = {NULL, 0};
-    int count = 0;
+    stek st = {NULL, 0};//стек для выражения 
+    int count = 0;//счётчик для скобок 
     for(int i = 0; str[i]; i++)
     {
-        if(str[i] == '(')
+        if(str[i] == '(')//если нашли скобку '('
         {
-            count++;
-            if(str[i + 1] && str[i + 1] == ')')
+            count++;//увеличиваем счётчик 
+            if(str[i + 1] && str[i + 1] == ')') //если следующий символ скобка 
                 return false;
         }
-        else if(str[i] == ')')
+        else if(str[i] == ')')//если нашли скобку ')'
         {
-            count--;
-            if(str[i + 1] && str[i + 1] == '(')
+            count--;//уменьшаем счётчик
+            if(str[i + 1] && str[i + 1] == '(')//если следующий символ скобка
                 return false;
         }
-        else if(str[i] != ' ')
+        else if(str[i] != ' ')// пока символ не равен пробелу
         {
-            if(str[i - 1] && str[i - 1] == '(' && (str[i] == '+' || str[i] == '-'))
-                push(&st, '0');
-            push(&st, str[i]);
+            if(str[i - 1] && str[i - 1] == '(' && (str[i] == '+' || str[i] == '-'))//проверка на унарный плюс и минус
+                push(&st, '0');//добавление нуля в случае унарного знака
+            push(&st, str[i]);//помещаем символ в стек
         }
         
         
     }
-    if(count != 0)
+    if(count != 0)//если счётчик скобок не равен нулю то выражение не верное 
         return false;
     
     bool flag = true;
-    while(flag)
+    while(flag)// цикл пока flag  true;
     {
-        stek triple = {NULL, 0};
-        for(int i = 0; i < 3; i++)
+        stek triple = {NULL, 0};//стек для тройки 
+        for(int i = 0; i < 3; i++)//цикл для занесения тройки в стек
         {
-            char tmp = pop(&st);
-            push(&triple, tmp);
+            char tmp = pop(&st);//
+            push(&triple, tmp);//
         }
-        if(chek_triple(&triple))
-            push(&st, 'v');
+        if(chek_triple(&triple))//обращаемся к нашей функции если всё верно кладём в стек с выражением новый символ вместо тех трех
+            push(&st, 'v');//
         else
             return false;
             
-        if(st.size == 2)
+        if(st.size == 2)//если размер стека равен 2 неверно выходим из функции 
             return false;
-        if(st.size == 1)
+        if(st.size == 1)//если размер равен 1 то всё верно и выражение правильное 
             flag = false;
-    }
-    return true;
-    
+            return true;
+    }    
 }
 ```
 ## ТЕСТИРОВКА ПРОГРАММЫ 
