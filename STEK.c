@@ -119,7 +119,7 @@ void delStek(stek *st)
     }
 }
 
-bool chek_triple(stek *st)
+bool chek_lexem(stek *st)
 {
     if(st == NULL)
         return false;
@@ -128,7 +128,7 @@ bool chek_triple(stek *st)
     {
         char tmp = pop(st);
         if(gramar(tmp) || number(tmp))
-            if(pos % 2 == 1)
+            if(pos % 2 != 0)
                 return false;
         if(operation(tmp))
             if(pos % 2 == 0)
@@ -142,83 +142,110 @@ bool check_expression(char *str)
 {
     if(str == NULL)
         return false;
+        
     if(strlen(str) == 0)
         return false;
-
+        
+    if(operation(str[0]))
+        return false;
+        
     stek st = {NULL, 0};
+    int i = 0;
+    int j = 0;
     int count = 0;
-    for(int i = 0; str[i]; i++)
+    while(str[i])
     {
         if(str[i] == '(')
-        {
-            count++;
             if(str[i + 1] && str[i + 1] == ')')
                 return false;
-        }
-        else if(str[i] == ')')
+        
+        if(str[i] == ')')
         {
-            count--;
-            if(str[i + 1] && str[i + 1] == '(')
+            if(str && str[i + 1] == '(')
                 return false;
+            char tmp;
+            int pos = 0;
+            bool flag = true;
+            while(flag)
+            {
+                
+                if(isEmpty(st))
+                    return false;
+
+                tmp = pop(&st);
+                pos++;
+                
+                char tmp_2;
+                ShowTop(&st, &tmp_2);
+                if(tmp_2 == '(')
+                    flag = false;
+                
+                if(gramar(tmp) || number(tmp))
+                    if(pos % 2 == 0)
+                        return false;
+                
+                if(operation(tmp))
+                    if(pos % 2 == 1)
+                        return false;
+            }
+            pop(&st);
+            push(&st, 'v');
+            // print_stack(st);
         }
+        
         else if(str[i] != ' ')
         {
+            
             if(i > 0 && str[i - 1] == '(' && (str[i] == '+' || str[i] == '-') && str[i + 2 ] && str[i+ 2] == ')')
                 push(&st, '0');
             push(&st, str[i]);
-        }
-
-
+            
+        }    
+        i++;
     }
-    if(count != 0)
+    if(chek_lexem(&st) == false)
         return false;
-
-    bool flag = true;
-    while(flag)
-    {
-        stek triple = {NULL, 0};
-        for(int i = 0; i < 3; i++)
-        {
-            char tmp = pop(&st);
-            push(&triple, tmp);
-        }
-        if(chek_triple(&triple))
-            push(&st, 'v');
-        else
-            return false;
-
-        if(st.size == 2)
-            return false;
-        if(st.size == 1)
-        {
-            flag = false;
-        }
-    }
-    return true;
+    if(st.size == 0)
+        return true;
 }
+
+
 
 int main()
 {
     //char str[size_str] = "";//uncorrect
     //char str[size_str] = "(()";//uncorrect
-    //char str[size_str] = " (+ h)";// correct
-    //char str[size_str] = " (2)";
-    char str[size_str] = "(2 + (8 * a))";
-    //char str[size_str] = "  (+2 - ((-1) / h ) + (a /  (-1)))";//uncorrect
+    //char str[size_str] = "(+h)";// correct
+    //char str[size_str] = " (+2)";
+    //char str[size_str] = "(2 + (8 * a))";
+    char str[size_str] = "(2 (+ (8 )* a))";
+    //char str[size_str] = "(2) - (1)/(4(*3) ))";//uncorrect
+    //char str[size_str] = "  (+2 - ((-1) / h ) + (a /  (-1)))";//correct
     //char str[size_str] = "((c-d)*h+1)*(a+b)";//correct
     //char str[size_str] = "(-d)";//correct
-    //char str[size_str] = "f * a * 8 + 1 + a";
+    //char str[size_str] = "f * a * 8 + 1 + a * ";//uncorrect
+    //char str[size_str] = "f * a ++ a";//uncorrect
     //char str[size_str] = "-2 + (1)";//uncorrect
-    //char str[size_str] = "(2 - 1 / (4/3))";
+    //char str[size_str] = "(2 - 1 / (4/3))";//correct
     //char str[size_str] = "(+2)";//correct
     //char str[size_str] = "((c + d) * h + 1) * (a + b))))))))))))";//uncorrect
     //char str[size_str] = "(a+(b**h) - 8)";//uncorrect
 
     //char str[size_str] = "(-1) * (-2)";//correct
     //char str[size_str] = "(-1) * ()";//uuncorrect
-    //char str[size_str] = "(-1) (-2)";//uncorrect
+    //char str[size_str] = "(-1)(-2)";//uncorrect
     //char str[size_str] = "(-1) * ()";//uncorrect
     //char str[size_str] = "(-1) * (+)";//uncorrect
+    
+    
+    
+    // stek trip = {NULL, 0};
+    // push(&trip, 'k');
+    // char v;
+    // ShowTop(&trip, &v);
+    // printf("%c\n", v);
+    
+    
     if(check_expression(str))
         printf("correct\n");
     else
