@@ -8,10 +8,9 @@
 ### РЕШЕНИЕ И АЛГОРИТМ
 Так как наша задача проверить правильное ли выражение или нет, 
 мы не учитываем приоритет операций.
-Первым делом мы проверяем скобки правильно ли они раставлены или нет.
-После мы опускаем скобки 
-выражение без скобок мы проверяем с помощью "троек"
-
+Помещаем выражение в стек до тех пор пока не встретим вот такую скобку ')'.
+Дальше мы проверяем всё то что лежит в скобках, меняем то что в скобках на новый символ.
+После мы проверяем выражение которое осталось без скобок.
 
 ## СТЕК
 > [!NOTE]
@@ -158,25 +157,27 @@ void delStek(stek *st)//входные данные стек
 ## ГЛАВНАЯ ФУНКЦИЯ ПРОВЕРКИ ВЫРАЖЕНИЯ
 
 >[!IMPORTANT]
-> 1. Проверка скобок так, как нам не важене приоритет операций, то нам достаточно проверять количество скобок 
-> 2. Полностью помещаем выражение в стек
-> 3. проверка тройками и замена тройки на один символ
+> 1. проверка данных
+> 2. помещение символов в стек до символа ')'
+> 3. проверка выражения в скобках и замена
+> 4. проверка выражения которое осталось по итогу(без скобок)
+> 5. и в конце проверка размера стека если ноль то выражение верно иначе не верно
 ```C
 push(&st, 'v');
 ```
 
-функйция проверки "тройки"
+функйция проверки выражения без скобок 
 ```C
-bool chek_triple(stek *st)//входные данные стек в котором лежит тройка
+bool chek_triple(stek *st)//входные данные стек
 {
     if(st == NULL)//проверка данных
         return false;
-    int pos = 0;//
-    while(isEmpty(*st) == false)//цикл пока наша "трокйка не пустая"
+    int pos = 0;//позиция 
+    while(isEmpty(*st) == false)//цикл пока наш стек не пустой 
     {
         char tmp = pop(st);
         if(gramar(tmp) || number(tmp))//проврка символа 
-            if(pos % 2 == 1)// проверка позиции 
+            if(pos % 2 != 0)// проверка позиции 
                 return false;                    
         if(operation(tmp))//проверка знака 
             if(pos % 2 == 0)// проверка позиции 
@@ -191,84 +192,101 @@ bool chek_triple(stek *st)//входные данные стек в которо
 
 Сама функция: 
 ```C
-bool check_expression(char *str)//входные данные строка 
+bool check_expression(char *str)//входные данные строка
 {
     if(str == NULL)//проверка данных
         return false;
+        
     if(strlen(str) == 0)//проверка данных
         return false;
-
-    stek st = {NULL, 0};//стек для выражения 
-    int count = 0;//счётчик для скобок 
-    for(int i = 0; str[i]; i++)
-    {
-        if(str[i] == '(')//если нашли скобку '('
-        {
-            count++;//увеличиваем счётчик 
-            if(str[i + 1] && str[i + 1] == ')') //если следующий символ скобка 
-                return false;
-        }
-        else if(str[i] == ')')//если нашли скобку ')'
-        {
-            count--;//уменьшаем счётчик
-            if(str[i + 1] && str[i + 1] == '(')//если следующий символ скобка
-                return false;
-        }
-        else if(str[i] != ' ')// пока символ не равен пробелу
-        {
-            if(str[i - 1] && str[i - 1] == '(' && (str[i] == '+' || str[i] == '-'))//проверка на унарный плюс и минус
-                push(&st, '0');//добавление нуля в случае унарного знака
-            push(&st, str[i]);//помещаем символ в стек
-        }
         
-        
-    }
-    if(count != 0)//если счётчик скобок не равен нулю то выражение не верное 
+    if(operation(str[0]))//если первый символ операция то выражение неверное 
         return false;
-    
-    bool flag = true;
-    while(flag)// цикл пока flag  true;
+        
+    stek st = {NULL, 0};
+    int i = 0;
+    while(str[i])//цикл по строке
     {
-        stek triple = {NULL, 0};//стек для тройки 
-        for(int i = 0; i < 3; i++)//цикл для занесения тройки в стек
+        if(str[i] == '(')//проверка если между двумя скобками нчиего нет
+            if(str[i + 1] && str[i + 1] == ')')//
+                return false;
+        
+        if(str[i] == ')')//если находим закрывающую скобку 
         {
-            char tmp = pop(&st);//
-            push(&triple, tmp);//
+            if(str && str[i + 1] == '(')//проверка если дальше идёт скобка и между ними нет операции
+                return false;
+            char tmp;
+            int pos = 0;//позиция 
+            bool flag = true;
+            while(flag)//цикл с помощью которого вытаскиваем и проверяем значения до '(' 
+            {
+                
+                if(isEmpty(st))//проверка на пустоту 
+                    return false;
+
+                tmp = pop(&st); 
+                pos++;
+                
+                char tmp_2;
+                ShowTop(&st, &tmp_2);
+                if(tmp_2 == '(')//проверка если следующее значение скобка
+                    flag = false;//выходим из цикла
+                
+                if(gramar(tmp) || number(tmp))//проверка символа
+                    if(pos % 2 == 0)//проверка позиции 
+                        return false;
+                
+                if(operation(tmp))//проверка оператора 
+                    if(pos % 2 == 1)//проверка позиции 
+                        return false;
+            }
+            pop(&st);//достаём из стека '('
+            push(&st, 'v');//и кладём новую перевменную которая заменяет выражение в скобках
         }
-        if(chek_triple(&triple))//обращаемся к нашей функции если всё верно кладём в стек с выражением новый символ вместо тех трех
-            push(&st, 'v');//
-        else
-            return false;
+        
+        else if(str[i] != ' ')//в стек заносим всё кроме пробелов 
+        {
             
-        if(st.size == 2)//если размер стека равен 2 неверно выходим из функции 
-            return false;
-        if(st.size == 1)//если размер равен 1 то всё верно и выражение правильное
-        { 
-            flag = false;
-            return true;
-        }
-    }    
+            if(i > 0 && str[i - 1] == '(' && (str[i] == '+' || str[i] == '-') && str[i + 2 ] && str[i+ 2] == ')')//проверка на унарные знаки 
+                push(&st, '0');//если унарный сначала кладём ноль
+            push(&st, str[i]);//кладём символ
+            
+        }    
+        i++;//
+    }
+    if(chek_lexem(&st) == false)//проверка выражения которое осталось без скобок  
+        return false;
+    if(st.size == 0)//если размер стека равен нулю то программа отработала коректно 
+        return true;
 }
 ```
+
 ## ТЕСТИРОВКА ПРОГРАММЫ 
 конечно же нам надо придумать тестировки для данной программы. Я придумал следующие тестировки 
 ```C
-    char str[size_str] = "";//uncorrect
-    char str[size_str] = "(()";//uncorrect
-    char str[size_str] = " + h";// correct
-    char str[size_str] = "  (+2 - ((-1) / h ) + (a /  (-1)))";//correct
-    char str[size_str] = "((c - d) * h + 1) * (a + b)";//correct
-    char str[size_str] = "-d";//correct
-    char str[size_str] = "+h";//correct
-    char str[size_str] = "(-2)";//ccorrect
-    char str[size_str] = "(+2)";//correct
-    char str[size_str] = "((c + d) * h + 1) * (a + b))))))))))))";//uncorrect
-    char str[size_str] = "(a+(b**h) - 8)";//uncorrect
-    char str[size_str] = "(-1) * (-2)";//correct
-    char str[size_str] = "(-1) * ()";//uuncorrect
-    char str[size_str] = "(-1) (-2)";//uncorrect
-    char str[size_str] = "(-1) * ()";//uncorrect
-    char str[size_str] = "(-1) * (+)";//uncorrect
+    //char str[size_str] = "";//uncorrect
+    //char str[size_str] = "(()";//uncorrect
+    //char str[size_str] = "(+h)";// correct
+    //char str[size_str] = " (+2)";//correct
+    //char str[size_str] = "(2 + (8 * a))";correct
+    //char str[size_str] = "(2 (+ (8 )* a))";uncorrect
+    //char str[size_str] = "(2) - (1)/(4(*3) ))";//uncorrect
+    //char str[size_str] = "  (+2 - ((-1) / h ) + (a /  (-1)))";//correct
+    //char str[size_str] = "((c-d)*h+1)*(a+b)";//correct
+    //char str[size_str] = "(-d)";//correct
+    //char str[size_str] = "f * a * 8 + 1 + a * ";//uncorrect
+    //char str[size_str] = "f * a ++ a";//uncorrect
+    //char str[size_str] = "-2 + (1)";//uncorrect
+    //char str[size_str] = "(2 - 1 / (4/3))";//correct
+    //char str[size_str] = "(+2)";//correct
+    //char str[size_str] = "((c + d) * h + 1) * (a + b))))))))))))";//uncorrect
+    //char str[size_str] = "(a+(b**h) - 8)";//uncorrect
+
+    //char str[size_str] = "(-1) * (-2)";//correct
+    //char str[size_str] = "(-1) * ()";//uuncorrect
+    //char str[size_str] = "(-1)(-2)";//uncorrect
+    //char str[size_str] = "(-1) * ()";//uncorrect
+    //char str[size_str] = "(-1) * (+)";//uncorrect
 ```
 Смотря на функцию проверки выражения, мы понимаем, что надо  проверить когда спрока пустая, когда строка состоит только из скобок, только из цифр, только буквы, где слишком много или слишком мало скобок, так же где символы стоят не на своих позициях,
 где повторяющиеся символы, так же унарный плюс или унарный минус (Унарным называется оператор, который применяется к одному операнду), так же где совсем не мат операций.
